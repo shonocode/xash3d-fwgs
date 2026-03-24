@@ -217,15 +217,37 @@ void IN_SetRelativeMouseMode( qboolean set )
 	{
 #if XASH_SDL >= 2
 		SDL_GetRelativeMouseState( NULL, NULL );
-#if XASH_SDL == 2
+#ifdef __EMSCRIPTEN__
+		// Emscripten: only set relative mode if pointer lock is actually supported
+		// Calling SDL_SetRelativeMouseMode without real pointer lock corrupts SDL mouse state
+		{
+			int ret = SDL_SetRelativeMouseMode( SDL_TRUE );
+			if( ret == 0 && SDL_GetRelativeMouseMode() )
+			{
+				s_bRawInput = true;
+				if( verbose )
+					Con_Printf( "%s: true\n", __func__ );
+			}
+			else
+			{
+				// Pointer lock not available, keep absolute mode
+				SDL_SetRelativeMouseMode( SDL_FALSE );
+				if( verbose )
+					Con_Printf( "%s: skipped (no pointer lock)\n", __func__ );
+			}
+		}
+#elif XASH_SDL == 2
 		SDL_SetRelativeMouseMode( SDL_TRUE );
-#else // XASH_SDL != 2
-		SDL_SetWindowRelativeMouseMode( host.hWnd, true );
-#endif // XASH_SDL != 2
-#endif // XASH_SDL >= 2
 		s_bRawInput = true;
 		if( verbose )
 			Con_Printf( "%s: true\n", __func__ );
+#else // XASH_SDL != 2
+		SDL_SetWindowRelativeMouseMode( host.hWnd, true );
+		s_bRawInput = true;
+		if( verbose )
+			Con_Printf( "%s: true\n", __func__ );
+#endif
+#endif // XASH_SDL >= 2
 	}
 	else if( !set && s_bRawInput )
 	{
@@ -355,6 +377,15 @@ static void IN_MouseMove( void )
 
 	// if the menu is visible, move the menu cursor
 	UI_MouseMove( x, y );
+
+#ifdef __EMSCRIPTEN__
+	// Debug: log mouse position periodically in menu mode
+	{
+		static int frame_count = 0;
+		if( cls.key_dest == key_menu && (frame_count++ % 300 == 0) )
+			Con_Printf( "MOUSE_DEBUG: pos=(%d,%d) active=%d visible=%d\n", x, y, in_mouseactive, host.mouse_visible );
+	}
+#endif
 }
 
 /*
@@ -393,6 +424,34 @@ void IN_MouseEvent( int key, int down )
 		Key_Event( K_MOUSE1 + key, down );
 	}
 }
+
+// Emscripten: expose debug functions for JS
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+EMSCRIPTEN_KEEPALIVE
+int Xash_GetKeyDest( void )
+{
+	return cls.key_dest;
+}
+
+EMSCRIPTEN_KEEPALIVE
+int Xash_GetMouseActive( void )
+{
+	return in_mouseactive;
+}
+
+EMSCRIPTEN_KEEPALIVE
+void Xash_GetMousePos( int *x, int *y )
+{
+	SDL_GetMouseState( x, y );
+}
+
+EMSCRIPTEN_KEEPALIVE
+int Xash_GetMouseVisible( void )
+{
+	return host.mouse_visible;
+}
+#endif
 
 /*
 ==============

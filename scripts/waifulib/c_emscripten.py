@@ -40,7 +40,8 @@ def gcc_modifier_emscripten(conf):
 	conf.env.CFLAGS_cprogram = ['-sMAIN_MODULE=1']
 
 	conf.env.LINKFLAGS_cshlib = ['-sSIDE_MODULE=1', '-Oz']
-	conf.env.LINKFLAGS_cprogram = ['-sMAIN_MODULE=1']
+	conf.env.LINKFLAGS_cprogram = ['-sMAIN_MODULE=1',
+		'-sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString,stringToNewUTF8,ENV,FS,callMain']
 
 @conf
 def gxx_modifier_emscripten(conf):
@@ -53,7 +54,8 @@ def gxx_modifier_emscripten(conf):
 	conf.env.CXXFLAGS_cxxprogram = ['-sMAIN_MODULE=1']
 
 	conf.env.LINKFLAGS_cxxshlib = ['-sSIDE_MODULE=1', '-Oz']
-	conf.env.LINKFLAGS_cxxprogram = ['-sMAIN_MODULE=1']
+	conf.env.LINKFLAGS_cxxprogram = ['-sMAIN_MODULE=1',
+		'-sEXPORTED_RUNTIME_METHODS=ccall,cwrap,UTF8ToString,stringToNewUTF8,ENV,FS,callMain']
 
 @feature('cxxprogram', 'cprogram')
 @after_method('apply_link')
