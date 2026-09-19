@@ -2069,7 +2069,12 @@ static int Touch_ControlsEvent( touchEventType type, int fingerID, float x, floa
 	return true;
 }
 
+#if XASH_EMSCRIPTEN
+#include <emscripten.h>
+EMSCRIPTEN_KEEPALIVE int IN_TouchEvent( touchEventType type, int fingerID, float x, float y, float dx, float dy )
+#else
 int IN_TouchEvent( touchEventType type, int fingerID, float x, float y, float dx, float dy )
+#endif
 {
 	if( ref.rotation & 1 )
 	{
