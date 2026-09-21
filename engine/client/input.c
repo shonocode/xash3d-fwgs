@@ -383,7 +383,7 @@ static void IN_MouseMove( void )
 	{
 		static int frame_count = 0;
 		if( cls.key_dest == key_menu && (frame_count++ % 300 == 0) )
-			Con_Printf( "MOUSE_DEBUG: pos=(%d,%d) active=%d visible=%d\n", x, y, in_mouseactive, host.mouse_visible );
+			Con_DPrintf( "MOUSE_DEBUG: pos=(%d,%d) active=%d visible=%d\n", x, y, in_mouseactive, host.mouse_visible );
 	}
 #endif
 }

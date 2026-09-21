@@ -73,13 +73,13 @@ void UI_KeyEvent( int key, qboolean down )
 	if( !gameui.hInstance )
 	{
 #ifdef __EMSCRIPTEN__
-		Con_Printf( "UI_KeyEvent: NO gameui.hInstance! key=%d down=%d\n", key, down );
+		Con_DPrintf( "UI_KeyEvent: NO gameui.hInstance! key=%d down=%d\n", key, down );
 #endif
 		return;
 	}
 #ifdef __EMSCRIPTEN__
 	if( key >= K_MOUSE1 && key <= K_MOUSE5 )
-		Con_Printf( "UI_KeyEvent: mouse key=%d down=%d\n", key, down );
+		Con_DPrintf( "UI_KeyEvent: mouse key=%d down=%d\n", key, down );
 #endif
 	gameui.dllFuncs.pfnKeyEvent( key, down );
 }
